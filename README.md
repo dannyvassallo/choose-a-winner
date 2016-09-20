@@ -2,7 +2,7 @@
 
 ####Getting Started
 ```shell
-npm start
+npm run dev
 ```
 
 Drop your CSV in the root and name it `test.csv`.
