@@ -1,35 +1,49 @@
 var winners = [];
 
-function locationExists(location) {
+function fieldExists(fieldToCheck) {
   return winners.some(function(el) {
-    return el["Tour Date"] === location;
+    return el[fieldToCheck] === fieldToCheck;
   });
 }
 
-$.ajax({url: '/csv', method: 'GET'}).done(function(data){
-  data = JSON.parse(data);
+function getRandomWinners(potentialWinners, data, fieldToCheck){
   var dataLength = data.length;
-
-  var potentialWinners = 10;
+  winners = [];
   while (winners.length < potentialWinners) {
     var randomIndex = Math.floor((Math.random() * dataLength) + 1),
     selectedWinner = data[randomIndex];
-    if(!locationExists(selectedWinner["Tour Date"])){
+    if(!fieldExists(fieldToCheck, selectedWinner[fieldToCheck])){
       winners.push(selectedWinner);
     } else {
-      console.log("location exists, finding another winner");
+      console.log("field exists, finding another winner");
     }
   }
+  console.log(winners);
+  return winners;
+}
 
-  $.each(winners, function(i, v){
-    var winner = v,
-    firstName = winner["First Name"],
-    lastName = winner["Last Name"],
-    emailAddress = winner["Email Address"],
-    tourDate = winner["Tour Date"],
-    newLi = $('<li>');
-    newLi.html("Name: "+firstName+" "+lastName+" | Email: "+emailAddress+" | Tour Date: "+tourDate);
-    $('.winners-list').append(newLi);
+// Make AJAX Call
+$('.getwinners').on('click', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+
+  $('.winners-list').empty();
+
+  $.ajax({url: '/csv', method: 'GET'}).done(function(data){
+    data = JSON.parse(data);
+
+    getRandomWinners(10, data, "Tour Dates");
+
+    $.each(winners, function(i, v){
+      var winner = v,
+      firstName = winner["First Name"],
+      lastName = winner["Last Name"],
+      emailAddress = winner["Email Address"],
+      tourDate = winner["Tour Date"],
+      newLi = $('<li>');
+      newLi.html("Name: "+firstName+" "+lastName+" | Email: "+emailAddress+" | Tour Date: "+tourDate);
+      $('.winners-list').append(newLi);
+    });
+
   });
-
 });
